@@ -5,39 +5,89 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.IO;
+using System.Data;
+using ICSBEL.Models;
 
 namespace ICSBEL.DataAccessLayer
 {
     public static class DB
     {
-        public static async Task<bool> ConnectToDB(string connString, SqlConnection connect)
+        private static readonly string selectDataCommand = "SELECT Name, Surname, JobTitle, BirthDate, Salary from Employees";
+        private static readonly string insertDataCommandFirstPart = "INSERT INTO Employees (Name, Surname, JobTitle, BirthDate, Salary) ";
+
+        //public static async Task<bool> ConnectToDB(string connString, SqlConnection connect)
+        //{
+        //    try
+        //    {
+        //        connect = new SqlConnection(connString);
+        //        await connect.OpenAsync();
+        //        return true;
+        //        //MessageBox.Show("Connection open successfully!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //    }
+        //    catch (SqlException ex)
+        //    {
+        //        return false;
+        //        //MessageBox.Show($"Something goes wrong! Exception is {ex}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+        //    finally
+        //    {
+        //        await connect.CloseAsync();
+        //    }
+        //}
+
+        public static async Task<DataTable> GetEmployeesFromDB(SqlConnection conn)
         {
-            try
+
+            SqlCommand selectCommand = new SqlCommand(selectDataCommand, conn);
+            SqlDataAdapter selectAdapter = new SqlDataAdapter();
+            selectAdapter.SelectCommand = selectCommand;
+            DataTable selectTable = new DataTable();
+            //DataSet selectDataSet = new DataSet();
+
+            using (conn)
             {
-                connect = new SqlConnection(connString);
-                await connect.OpenAsync();
-                return true;
-                //MessageBox.Show("Connection open successfully!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await conn.OpenAsync();
+                selectAdapter.Fill(selectTable);
             }
-            catch (SqlException ex)
-            {
-                return false;
-                //MessageBox.Show($"Something goes wrong! Exception is {ex}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                await connect.CloseAsync();
-            }
+
+            return selectTable;
         }
 
-        public static async Task<string> GetConnectionString()
+        public static async Task InsertEmployeeIntoDB(SqlConnection conn, Employee employee)
         {
-            string json = "";
-            using(var fs = new FileStream("config.json", FileMode.OpenOrCreate))
+            string insertDataCommandSecondPart = "VALUES ('" + employee.Name +"', '" + employee.Surname + "', '" + employee.JobTitle + "', '" +
+                employee.BirthDate + "', " + employee.Salary + ")";
+            string insertDataCommand = insertDataCommandFirstPart + insertDataCommandSecondPart;
+
+            SqlCommand insertCommand = new SqlCommand(insertDataCommand, conn);
+
+            //await conn.OpenAsync();
+            //int objNumber = insertCommand.ExecuteNonQuery();
+            //await conn.CloseAsync();
+            using (conn)
             {
-                json = await JsonSerializer.DeserializeAsync<string>(fs);
+                await conn.OpenAsync();
+                int objNumber = insertCommand.ExecuteNonQuery();
             }
-            return json;
+
+            //var unnecessary = GetEmployeesFromDB(conn);
+
+
+        }
+
+        public static async Task SelectDataFromDB(SqlConnection connect)
+        {
+            SqlCommand comm = new SqlCommand(selectDataCommand);
+            SqlDataAdapter adap = new SqlDataAdapter();
+            DataTable dataTable = new DataTable();
+
+            adap.SelectCommand = comm;
+            
+            using (connect)
+            {
+                await connect.OpenAsync();
+                adap.Fill(dataTable);
+            }
         }
     }
 }
