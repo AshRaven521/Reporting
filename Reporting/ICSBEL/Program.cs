@@ -19,7 +19,7 @@ namespace ICSBEL
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Reporting());
+            Application.Run(new reportingForm());
         }
     }
 }
