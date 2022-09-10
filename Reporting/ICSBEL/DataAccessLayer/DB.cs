@@ -1,51 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Data.SqlClient;
-using System.IO;
+﻿using ICSBEL.Models;
+using System.Configuration;
 using System.Data;
-using ICSBEL.Models;
+using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace ICSBEL.DataAccessLayer
 {
     public static class DB
     {
-        private static readonly string selectDataCommand = "SELECT Name, Surname, JobTitle, BirthDate, Salary from Employees";
+        private static readonly string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+
+        private static readonly string selectDataCommand = "SELECT Id, Name, Surname, JobTitle, BirthDate, Salary from Employees";
         private static readonly string insertDataCommandFirstPart = "INSERT INTO Employees (Name, Surname, JobTitle, BirthDate, Salary) ";
+        private static readonly string deleteDataCommand = "DELETE FROM Employees WHERE Id=";
+        private static readonly string getSalariesCommand = "SELECT JobTitle, AVG(Salary) from Employees GROUP BY JobTitle";
 
-        //public static async Task<bool> ConnectToDB(string connString, SqlConnection connect)
-        //{
-        //    try
-        //    {
-        //        connect = new SqlConnection(connString);
-        //        await connect.OpenAsync();
-        //        return true;
-        //        //MessageBox.Show("Connection open successfully!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //    }
-        //    catch (SqlException ex)
-        //    {
-        //        return false;
-        //        //MessageBox.Show($"Something goes wrong! Exception is {ex}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-        //    finally
-        //    {
-        //        await connect.CloseAsync();
-        //    }
-        //}
-
-        public static async Task<DataTable> GetEmployeesFromDB(SqlConnection conn)
+        public static async Task<DataTable> GetEmployeesFromDB()
         {
-
-            SqlCommand selectCommand = new SqlCommand(selectDataCommand, conn);
-            SqlDataAdapter selectAdapter = new SqlDataAdapter();
-            selectAdapter.SelectCommand = selectCommand;
             DataTable selectTable = new DataTable();
-            //DataSet selectDataSet = new DataSet();
 
-            using (conn)
+            using (var conn = new SqlConnection(connectionString))
             {
+                SqlCommand selectCommand = new SqlCommand(selectDataCommand, conn);
+                SqlDataAdapter selectAdapter = new SqlDataAdapter();
+                selectAdapter.SelectCommand = selectCommand;
                 await conn.OpenAsync();
                 selectAdapter.Fill(selectTable);
             }
@@ -53,41 +31,73 @@ namespace ICSBEL.DataAccessLayer
             return selectTable;
         }
 
-        public static async Task InsertEmployeeIntoDB(SqlConnection conn, Employee employee)
+        public static async Task<int> InsertEmployeeIntoDB(Employee employee)
         {
-            string insertDataCommandSecondPart = "VALUES ('" + employee.Name +"', '" + employee.Surname + "', '" + employee.JobTitle + "', '" +
+            string insertDataCommandSecondPart = "VALUES ('" + employee.Name + "', '" + employee.Surname + "', '" + employee.JobTitle + "', '" +
                 employee.BirthDate + "', " + employee.Salary + ")";
             string insertDataCommand = insertDataCommandFirstPart + insertDataCommandSecondPart;
 
-            SqlCommand insertCommand = new SqlCommand(insertDataCommand, conn);
-
-            //await conn.OpenAsync();
-            //int objNumber = insertCommand.ExecuteNonQuery();
-            //await conn.CloseAsync();
-            using (conn)
+            int insertEmployee = 0;
+            using (var conn = new SqlConnection(connectionString))
             {
+                SqlCommand insertCommand = new SqlCommand(insertDataCommand, conn);
                 await conn.OpenAsync();
-                int objNumber = insertCommand.ExecuteNonQuery();
+                insertEmployee = insertCommand.ExecuteNonQuery();
             }
+            //await conn.OpenAsync();
+            //insertEmployee = insertCommand.ExecuteNonQuery();
 
             //var unnecessary = GetEmployeesFromDB(conn);
 
-
+            return insertEmployee;
         }
 
-        public static async Task SelectDataFromDB(SqlConnection connect)
+        public static async Task<int> DeleteEmployeeFromDB(int id)
         {
-            SqlCommand comm = new SqlCommand(selectDataCommand);
-            SqlDataAdapter adap = new SqlDataAdapter();
+            string deleteEmployee = deleteDataCommand + id;
+
+            int deleteEmployeeCount = 0;
+
+            using (var connect = new SqlConnection(connectionString))
+            {
+                SqlCommand deleteCommand = new SqlCommand(deleteEmployee, connect);
+                await connect.OpenAsync();
+                deleteEmployeeCount = deleteCommand.ExecuteNonQuery();
+            }
+
+            return deleteEmployeeCount;
+        }
+
+        public static async Task SelectDataFromDB()
+        {
             DataTable dataTable = new DataTable();
 
-            adap.SelectCommand = comm;
-            
-            using (connect)
+            using (var connect = new SqlConnection(connectionString))
             {
+                SqlCommand comm = new SqlCommand(selectDataCommand, connect);
+                SqlDataAdapter adap = new SqlDataAdapter();
+                adap.SelectCommand = comm;
                 await connect.OpenAsync();
                 adap.Fill(dataTable);
             }
+        }
+
+        public static async Task<DataSet> GetSalariesForReport()
+        {
+            DataTable salaryTable = new DataTable();
+            DataSet salarySet = new DataSet();
+
+            using (var connect = new SqlConnection(connectionString))
+            {
+                SqlCommand salaryCommand = new SqlCommand(getSalariesCommand, connect);
+                SqlDataAdapter salaryAdapter = new SqlDataAdapter();
+                salaryAdapter.SelectCommand = salaryCommand;
+                await connect.OpenAsync();
+                salaryAdapter.Fill(salaryTable);
+            }
+            salarySet.Tables.Add(salaryTable);
+
+            return salarySet;
         }
     }
 }
