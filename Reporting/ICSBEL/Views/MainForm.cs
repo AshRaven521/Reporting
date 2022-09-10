@@ -1,5 +1,6 @@
 ﻿using ICSBEL.DataAccessLayer;
 using ICSBEL.Utils;
+using ICSBEL.Views;
 using System;
 using System.Data;
 using System.Data.SqlClient;
@@ -55,7 +56,6 @@ namespace ICSBEL
 
         private async void reportingForm_Load(object sender, EventArgs e)
         {
-
             try
             {
                 var data = await DB.GetEmployeesFromDB();
@@ -107,14 +107,15 @@ namespace ICSBEL
                 DefaultExt = ".xlsx",
                 Title = "Выберите файл для сохранения отчета"
             };
-
             
             if (save.ShowDialog() == DialogResult.OK)
             {
                 bool isSuccessfull = await Excel.CreateReport(save.FileName);
                 if (isSuccessfull == true)
                 {
-                    MessageBox.Show($"Отчет создан успешно\nФайл расположен: {save.FileName}", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information) ;
+                    MessageBox.Show($"Отчет создан успешно\nФайл расположен: {save.FileName}", "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ShowReportForm showReport = new ShowReportForm(save.FileName);
+                    showReport.ShowDialog();
                 }
                 else
                 {
