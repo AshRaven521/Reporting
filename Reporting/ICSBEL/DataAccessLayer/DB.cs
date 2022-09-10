@@ -13,7 +13,7 @@ namespace ICSBEL.DataAccessLayer
         private static readonly string selectDataCommand = "SELECT Id, Name, Surname, JobTitle, BirthDate, Salary from Employees";
         private static readonly string insertDataCommandFirstPart = "INSERT INTO Employees (Name, Surname, JobTitle, BirthDate, Salary) ";
         private static readonly string deleteDataCommand = "DELETE FROM Employees WHERE Id=";
-        private static readonly string getSalariesCommand = "SELECT JobTitle, AVG(Salary) from Employees GROUP BY JobTitle";
+        private static readonly string getSalariesCommand = "SELECT JobTitle, AVG(Salary) AS Salary from Employees GROUP BY JobTitle";
 
         public static async Task<DataTable> GetEmployeesFromDB()
         {
