@@ -103,13 +103,13 @@ namespace ICSBEL
             this.employeeJobTitleFilterLabel.AutoSize = true;
             this.employeeJobTitleFilterLabel.Location = new System.Drawing.Point(13, 21);
             this.employeeJobTitleFilterLabel.Name = "employeeJobTitleFilterLabel";
-            this.employeeJobTitleFilterLabel.Size = new System.Drawing.Size(183, 22);
+            this.employeeJobTitleFilterLabel.Size = new System.Drawing.Size(325, 22);
             this.employeeJobTitleFilterLabel.TabIndex = 5;
-            this.employeeJobTitleFilterLabel.Text = "Введите должность:";
+            this.employeeJobTitleFilterLabel.Text = "Введите должность для фильтрации:";
             // 
             // employeeJobTitleFilterTextBox
             // 
-            this.employeeJobTitleFilterTextBox.Location = new System.Drawing.Point(224, 18);
+            this.employeeJobTitleFilterTextBox.Location = new System.Drawing.Point(344, 18);
             this.employeeJobTitleFilterTextBox.Name = "employeeJobTitleFilterTextBox";
             this.employeeJobTitleFilterTextBox.Size = new System.Drawing.Size(246, 30);
             this.employeeJobTitleFilterTextBox.TabIndex = 6;

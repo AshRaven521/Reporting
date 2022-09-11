@@ -52,9 +52,9 @@ namespace ICSBEL.Views
             this.reportLabel.AutoSize = true;
             this.reportLabel.Location = new System.Drawing.Point(28, 21);
             this.reportLabel.Name = "reportLabel";
-            this.reportLabel.Size = new System.Drawing.Size(414, 22);
+            this.reportLabel.Size = new System.Drawing.Size(423, 22);
             this.reportLabel.TabIndex = 1;
-            this.reportLabel.Text = "Отчет(средняя зарплата для каждой должноти)";
+            this.reportLabel.Text = "Отчет(средняя зарплата для каждой должности)";
             // 
             // ShowReportForm
             // 
